@@ -55,6 +55,27 @@ function getQueryParam(name) {
   return params.get(name);
 }
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+// 문제문이 "지시문\n\n지문" 형태이면 지문을 별도 박스로 분리해 보여준다.
+function renderQuestionText(question) {
+  const parts = question.split(/\n\n+/);
+  if (parts.length < 2) {
+    return `<p class="question-text">${escapeHtml(question)}</p>`;
+  }
+  const instruction = parts[0];
+  const passage = parts.slice(1).join("\n\n");
+  return `
+    <p class="question-text">${escapeHtml(instruction)}</p>
+    <div class="passage-box">${escapeHtml(passage)}</div>
+  `;
+}
+
 function shuffleArray(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -286,7 +307,7 @@ function renderQuestion() {
   quizArea.innerHTML = `
     <div class="question-card">
       <div class="question-number">문제 ${state.current + 1}</div>
-      <p class="question-text">${q.question}</p>
+      ${renderQuestionText(q.question)}
       <div class="options" id="options-container">${optionsHtml}</div>
       <div class="explanation" id="explanation">${q.explanation ? `<strong>해설:</strong> ${q.explanation}` : ""}</div>
       <div class="nav-buttons">

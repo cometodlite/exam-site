@@ -224,8 +224,21 @@ main {
 .question-text {
   font-size: 1.1rem;
   font-weight: 600;
-  margin: 0 0 20px;
+  margin: 0 0 12px;
   line-height: 1.5;
+}
+
+.passage-box {
+  background: #f8f9fb;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--primary);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin: 0 0 20px;
+  font-size: 0.98rem;
+  line-height: 1.75;
+  color: var(--text);
+  white-space: pre-line;
 }
 
 .options {
