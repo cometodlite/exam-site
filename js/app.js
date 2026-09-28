@@ -19,13 +19,35 @@ async function loadSubjectList() {
 }
 
 // ---- 퀴즈 페이지 (quiz.html) ----
+
+const COUNT_TIERS = [
+  { key: "entry", label: "Entry", count: 5 },
+  { key: "gen", label: "Gen", count: 10 },
+  { key: "air", label: "Air", count: 25 },
+  { key: "pro", label: "Pro", count: 50 },
+  { key: "duo", label: "Duo", count: 100 },
+];
+
+const TIME_TIERS = [
+  { key: "gen", label: "Gen", minutes: 5 },
+  { key: "mini", label: "Mini", minutes: 15 },
+  { key: "air", label: "Air", minutes: 30 },
+  { key: "pro", label: "Pro", minutes: 50 },
+];
+
 const state = {
   subjectId: null,
   subjectName: "",
+  allQuestions: [],
   questions: [],
   current: 0,
   selectedIndex: null,
   answers: [], // { selected, correct }
+  selectedCount: null,
+  selectedMinutes: null,
+  timerId: null,
+  remainingSeconds: 0,
+  timeUp: false,
 };
 
 function getQueryParam(name) {
@@ -33,12 +55,21 @@ function getQueryParam(name) {
   return params.get(name);
 }
 
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 async function initQuiz() {
   const subjectId = getQueryParam("subject");
-  const quizArea = document.getElementById("quiz-area");
+  const setupArea = document.getElementById("setup-area");
 
   if (!subjectId) {
-    quizArea.innerHTML = "<p>과목이 지정되지 않았습니다. 목록으로 돌아가 과목을 선택해주세요.</p>";
+    setupArea.innerHTML = "<p>과목이 지정되지 않았습니다. 목록으로 돌아가 과목을 선택해주세요.</p>";
     return;
   }
 
@@ -48,7 +79,7 @@ async function initQuiz() {
     const subject = subjects.find((s) => s.id === subjectId);
 
     if (!subject) {
-      quizArea.innerHTML = "<p>존재하지 않는 과목입니다.</p>";
+      setupArea.innerHTML = "<p>존재하지 않는 과목입니다.</p>";
       return;
     }
 
@@ -59,15 +90,141 @@ async function initQuiz() {
 
     const qRes = await fetch(`data/${subject.file}`);
     const questions = await qRes.json();
-    state.questions = questions;
-    state.answers = new Array(questions.length).fill(null);
-    state.current = 0;
-    state.selectedIndex = null;
+    state.allQuestions = questions;
 
-    renderQuestion();
+    renderSetup();
   } catch (e) {
-    quizArea.innerHTML = `<p>문제를 불러오지 못했습니다. (${e.message})</p>`;
+    setupArea.innerHTML = `<p>문제를 불러오지 못했습니다. (${e.message})</p>`;
   }
+}
+
+function renderSetup() {
+  const setupArea = document.getElementById("setup-area");
+  const quizArea = document.getElementById("quiz-area");
+  const resultArea = document.getElementById("result-area");
+  const progressBarWrap = document.getElementById("progress-bar-wrap");
+  const timerText = document.getElementById("timer-text");
+
+  quizArea.style.display = "none";
+  resultArea.style.display = "none";
+  progressBarWrap.style.display = "none";
+  timerText.style.display = "none";
+  document.getElementById("progress-text").textContent = "";
+
+  const total = state.allQuestions.length;
+  state.selectedCount = null;
+  state.selectedMinutes = null;
+
+  const countButtonsHtml = COUNT_TIERS.map((t) => {
+    const disabled = t.count > total;
+    return `<button class="select-btn" data-count="${t.count}" ${disabled ? "disabled" : ""}>
+      <strong>${t.label}</strong>${t.count}문제${disabled ? "<br/><small>(문제 부족)</small>" : ""}
+    </button>`;
+  }).join("");
+
+  const timeButtonsHtml = TIME_TIERS.map((t) => `
+    <button class="select-btn" data-minutes="${t.minutes}">
+      <strong>${t.label}</strong>${t.minutes}분
+    </button>`).join("");
+
+  setupArea.innerHTML = `
+    <div class="setup-card">
+      <h2>문제지 유형</h2>
+      <p class="setup-hint">전체 ${total}문제 중 몇 문제를 풀어볼까요?</p>
+      <div class="option-group" id="count-group">${countButtonsHtml}</div>
+
+      <h2>문제 풀이 시간</h2>
+      <p class="setup-hint">제한 시간을 선택하세요. 시간이 끝나면 자동으로 채점됩니다.</p>
+      <div class="option-group" id="time-group">${timeButtonsHtml}</div>
+
+      <button class="primary" id="start-quiz-btn" disabled style="width:100%;">문제 수와 시간을 선택하세요</button>
+    </div>
+  `;
+
+  const countGroup = document.getElementById("count-group");
+  const timeGroup = document.getElementById("time-group");
+  const startBtn = document.getElementById("start-quiz-btn");
+
+  countGroup.querySelectorAll(".select-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      countGroup.querySelectorAll(".select-btn").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      state.selectedCount = Number(btn.dataset.count);
+      updateStartButton();
+    });
+  });
+
+  timeGroup.querySelectorAll(".select-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      timeGroup.querySelectorAll(".select-btn").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      state.selectedMinutes = Number(btn.dataset.minutes);
+      updateStartButton();
+    });
+  });
+
+  function updateStartButton() {
+    if (state.selectedCount && state.selectedMinutes) {
+      startBtn.disabled = false;
+      startBtn.textContent = `${state.selectedCount}문제 · ${state.selectedMinutes}분 시작하기`;
+    } else {
+      startBtn.disabled = true;
+      startBtn.textContent = "문제 수와 시간을 선택하세요";
+    }
+  }
+
+  startBtn.addEventListener("click", beginQuiz);
+}
+
+function beginQuiz() {
+  const setupArea = document.getElementById("setup-area");
+  const quizArea = document.getElementById("quiz-area");
+  const progressBarWrap = document.getElementById("progress-bar-wrap");
+  const timerText = document.getElementById("timer-text");
+
+  const count = Math.min(state.selectedCount, state.allQuestions.length);
+  state.questions = shuffleArray(state.allQuestions).slice(0, count);
+  state.answers = new Array(state.questions.length).fill(null);
+  state.current = 0;
+  state.timeUp = false;
+
+  setupArea.innerHTML = "";
+  quizArea.style.display = "block";
+  progressBarWrap.style.display = "block";
+  timerText.style.display = "inline-block";
+
+  startTimer(state.selectedMinutes * 60);
+  renderQuestion();
+}
+
+function startTimer(seconds) {
+  stopTimer();
+  state.remainingSeconds = seconds;
+  updateTimerDisplay();
+  state.timerId = setInterval(() => {
+    state.remainingSeconds -= 1;
+    updateTimerDisplay();
+    if (state.remainingSeconds <= 0) {
+      stopTimer();
+      state.timeUp = true;
+      renderResult();
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerId) {
+    clearInterval(state.timerId);
+    state.timerId = null;
+  }
+}
+
+function updateTimerDisplay() {
+  const timerText = document.getElementById("timer-text");
+  const m = Math.max(0, Math.floor(state.remainingSeconds / 60));
+  const s = Math.max(0, state.remainingSeconds % 60);
+  timerText.textContent = `⏱ ${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  timerText.classList.toggle("warning", state.remainingSeconds <= 30);
 }
 
 function renderQuestion() {
@@ -162,10 +319,14 @@ function applyAnswerStyles(selectedIndex) {
 }
 
 function renderResult() {
+  stopTimer();
+
   const quizArea = document.getElementById("quiz-area");
   const resultArea = document.getElementById("result-area");
+  const timerText = document.getElementById("timer-text");
   quizArea.style.display = "none";
   resultArea.style.display = "block";
+  timerText.style.display = "none";
 
   const total = state.questions.length;
   const correctCount = state.answers.filter((a) => a && a.correct).length;
@@ -183,12 +344,17 @@ function renderResult() {
     })
     .join("");
 
+  const timeUpNoticeHtml = state.timeUp
+    ? `<p style="color: var(--wrong); font-weight: 600;">⏰ 제한 시간이 종료되어 자동으로 채점되었습니다.</p>`
+    : "";
+
   resultArea.innerHTML = `
     <div class="result-card">
-      <p>${state.subjectName}</p>
+      <p>${state.subjectName} · ${state.selectedCount ? COUNT_TIERS.find((t) => t.count === Math.min(state.selectedCount, state.allQuestions.length))?.label ?? "" : ""}</p>
+      ${timeUpNoticeHtml}
       <div class="result-score">${correctCount} / ${total} (${percent}점)</div>
       <p style="color: var(--muted);">${percent >= 80 ? "훌륭해요! 🎉" : percent >= 50 ? "조금만 더 복습해봐요 💪" : "처음부터 다시 도전해봐요 📚"}</p>
-      <button class="primary" id="retry-btn" style="margin-top: 16px;">다시 풀기</button>
+      <button class="primary" id="retry-btn" style="margin-top: 16px;">다른 유형으로 다시 풀기</button>
       <div class="result-list">${listHtml}</div>
     </div>
   `;
@@ -197,8 +363,8 @@ function renderResult() {
   document.getElementById("progress-text").textContent = `${total} / ${total} 완료`;
 
   document.getElementById("retry-btn").addEventListener("click", () => {
-    state.answers = new Array(total).fill(null);
-    state.current = 0;
-    renderQuestion();
+    document.getElementById("result-area").style.display = "none";
+    document.getElementById("setup-area").style.display = "block";
+    renderSetup();
   });
 }

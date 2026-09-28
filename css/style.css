@@ -86,6 +86,7 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
@@ -98,6 +99,83 @@ main {
 .progress-text {
   color: var(--muted);
   font-size: 0.9rem;
+  margin-left: auto;
+}
+
+.timer-text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: #eef1ff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-text.warning {
+  color: var(--wrong);
+  background: #fff5f5;
+}
+
+.setup-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.setup-card h2 {
+  font-size: 1rem;
+  margin: 0 0 4px;
+}
+
+.setup-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 14px;
+}
+
+.option-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.select-btn {
+  flex: 1 1 100px;
+  padding: 14px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.select-btn strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.select-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  background: #f0f3ff;
+}
+
+.select-btn.selected {
+  border-color: var(--primary);
+  background: #eef1ff;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.select-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .progress-bar {
