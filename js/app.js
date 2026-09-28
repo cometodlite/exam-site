@@ -120,22 +120,28 @@ function renderSetup() {
     return `<button class="select-btn" data-count="${t.count}" ${disabled ? "disabled" : ""}>
       <strong>${t.label}</strong>${t.count}문제${disabled ? "<br/><small>(문제 부족)</small>" : ""}
     </button>`;
-  }).join("");
+  }).join("") + `<button class="select-btn random-btn" data-random="count">
+      <strong>🎲 랜덤</strong>무작위 선택
+    </button>`;
 
   const timeButtonsHtml = TIME_TIERS.map((t) => `
     <button class="select-btn" data-minutes="${t.minutes}">
       <strong>${t.label}</strong>${t.minutes}분
-    </button>`).join("");
+    </button>`).join("") + `<button class="select-btn random-btn" data-random="time">
+      <strong>🎲 랜덤</strong>무작위 선택
+    </button>`;
 
   setupArea.innerHTML = `
     <div class="setup-card">
       <h2>문제지 유형</h2>
       <p class="setup-hint">전체 ${total}문제 중 몇 문제를 풀어볼까요?</p>
       <div class="option-group" id="count-group">${countButtonsHtml}</div>
+      <p class="setup-hint random-hint" id="count-random-hint" style="min-height: 1.2em;"></p>
 
       <h2>문제 풀이 시간</h2>
       <p class="setup-hint">제한 시간을 선택하세요. 시간이 끝나면 자동으로 채점됩니다.</p>
       <div class="option-group" id="time-group">${timeButtonsHtml}</div>
+      <p class="setup-hint random-hint" id="time-random-hint" style="min-height: 1.2em;"></p>
 
       <button class="primary" id="start-quiz-btn" disabled style="width:100%;">문제 수와 시간을 선택하세요</button>
     </div>
@@ -144,23 +150,56 @@ function renderSetup() {
   const countGroup = document.getElementById("count-group");
   const timeGroup = document.getElementById("time-group");
   const startBtn = document.getElementById("start-quiz-btn");
+  const countRandomHint = document.getElementById("count-random-hint");
+  const timeRandomHint = document.getElementById("time-random-hint");
 
-  countGroup.querySelectorAll(".select-btn").forEach((btn) => {
+  function selectCountButton(btn) {
+    countGroup.querySelectorAll(".select-btn").forEach((b) => b.classList.remove("selected"));
+    btn.classList.add("selected");
+  }
+
+  function selectTimeButton(btn) {
+    timeGroup.querySelectorAll(".select-btn").forEach((b) => b.classList.remove("selected"));
+    btn.classList.add("selected");
+  }
+
+  countGroup.querySelectorAll(".select-btn[data-count]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      countGroup.querySelectorAll(".select-btn").forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
+      selectCountButton(btn);
       state.selectedCount = Number(btn.dataset.count);
+      countRandomHint.textContent = "";
       updateStartButton();
     });
   });
 
-  timeGroup.querySelectorAll(".select-btn").forEach((btn) => {
+  timeGroup.querySelectorAll(".select-btn[data-minutes]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      timeGroup.querySelectorAll(".select-btn").forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
+      selectTimeButton(btn);
       state.selectedMinutes = Number(btn.dataset.minutes);
+      timeRandomHint.textContent = "";
       updateStartButton();
     });
+  });
+
+  const countRandomBtn = countGroup.querySelector('[data-random="count"]');
+  countRandomBtn.addEventListener("click", () => {
+    const choices = COUNT_TIERS.filter((t) => t.count <= total);
+    const picked = choices[Math.floor(Math.random() * choices.length)];
+    const targetBtn = countGroup.querySelector(`[data-count="${picked.count}"]`);
+    selectCountButton(targetBtn);
+    state.selectedCount = picked.count;
+    countRandomHint.textContent = `🎲 문제지 유형: ${picked.label}(${picked.count}문제)로 랜덤 선택되었습니다.`;
+    updateStartButton();
+  });
+
+  const timeRandomBtn = timeGroup.querySelector('[data-random="time"]');
+  timeRandomBtn.addEventListener("click", () => {
+    const picked = TIME_TIERS[Math.floor(Math.random() * TIME_TIERS.length)];
+    const targetBtn = timeGroup.querySelector(`[data-minutes="${picked.minutes}"]`);
+    selectTimeButton(targetBtn);
+    state.selectedMinutes = picked.minutes;
+    timeRandomHint.textContent = `🎲 문제 풀이 시간: ${picked.label}(${picked.minutes}분)으로 랜덤 선택되었습니다.`;
+    updateStartButton();
   });
 
   function updateStartButton() {

@@ -178,6 +178,20 @@ main {
   cursor: not-allowed;
 }
 
+.select-btn.random-btn {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.select-btn.random-btn:hover {
+  color: var(--primary);
+}
+
+.random-hint {
+  color: var(--primary);
+  font-weight: 600;
+}
+
 .progress-bar {
   height: 6px;
   background: var(--border);
