@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>대학 시험 대비 문제 사이트</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>대학 시험 대비 문제 사이트</h1>
+    <p>과목을 선택하고 객관식 문제를 풀어보세요</p>
+  </header>
+  <main>
+    <div id="subject-grid" class="subject-grid">
+      <!-- subjects loaded from data/subjects.json -->
+    </div>
+  </main>
+  <script src="js/app.js"></script>
+  <script>
+    loadSubjectList();
+  </script>
+</body>
+</html>

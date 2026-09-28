@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>퀴즈 | 대학 시험 대비 문제 사이트</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1 id="subject-title">퀴즈</h1>
+    <p id="subject-sub">문제를 선택하면 바로 정답을 확인할 수 있습니다</p>
+  </header>
+  <main>
+    <div class="top-bar">
+      <a href="index.html" class="back-link">&larr; 과목 목록으로</a>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <div id="quiz-area"></div>
+    <div id="result-area" style="display:none;"></div>
+  </main>
+  <script src="js/app.js"></script>
+  <script>
+    initQuiz();
+  </script>
+</body>
+</html>

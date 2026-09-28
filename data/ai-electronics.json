@@ -1,0 +1,32 @@
+[
+  {
+    "question": "트랜지스터의 주요 기능으로 옳지 않은 것은?",
+    "options": ["전류 증폭", "스위칭 동작", "신호 저장(비휘발성)", "신호 증폭"],
+    "answer": 2,
+    "explanation": "트랜지스터는 증폭과 스위칭 소자이며, 비휘발성 저장 기능은 없습니다."
+  },
+  {
+    "question": "다음 중 아날로그 신호를 디지털 신호로 변환하는 장치는?",
+    "options": ["DAC", "ADC", "OP-AMP", "저항"],
+    "answer": 1,
+    "explanation": "ADC(Analog-to-Digital Converter)가 아날로그를 디지털로 변환합니다."
+  },
+  {
+    "question": "퍼셉트론(Perceptron)의 기본 구성 요소가 아닌 것은?",
+    "options": ["입력값과 가중치", "활성화 함수", "편향(bias)", "커널 트릭"],
+    "answer": 3,
+    "explanation": "커널 트릭은 SVM 등에서 사용되는 개념으로 기본 퍼셉트론 구성 요소가 아닙니다."
+  },
+  {
+    "question": "옴의 법칙(Ohm's Law)의 수식으로 옳은 것은?",
+    "options": ["V = IR", "P = VI", "I = V + R", "R = V + I"],
+    "answer": 0,
+    "explanation": "전압 V는 전류 I와 저항 R의 곱입니다 (V = IR)."
+  },
+  {
+    "question": "인공신경망에서 비선형성을 부여하기 위해 사용하는 것은?",
+    "options": ["손실 함수", "활성화 함수", "옵티마이저", "정규화"],
+    "answer": 1,
+    "explanation": "활성화 함수(ReLU, Sigmoid 등)가 비선형성을 부여합니다."
+  }
+]
