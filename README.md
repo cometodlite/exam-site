@@ -1,6 +1,6 @@
 # 대학 시험 대비 문제 사이트
 
-7개 과목(AI기반전자공학첫걸음, 기초코딩과문제해결, 심화글쓰기, 이산수학, 진로탐색세미나, 컴퓨터구조, 컴퓨터프로그래밍)의
+6개 과목(AI기반전자공학첫걸음, 기초코딩과문제해결, 심화글쓰기, 이산수학, 컴퓨터구조, 컴퓨터프로그래밍)의
 객관식 문제를 풀어볼 수 있는 정적 웹사이트입니다. 빌드 과정 없이 순수 HTML/CSS/JS로 동작하며, GitHub Pages로 바로 배포할 수 있습니다.
 
 ## 구조
@@ -17,7 +17,6 @@ exam-site/
     ├── coding-basics.json
     ├── writing.json
     ├── discrete-math.json
-    ├── career-seminar.json
     ├── computer-architecture.json
     └── programming.json
 ```

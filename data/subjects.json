@@ -3,7 +3,6 @@
   { "id": "coding-basics", "name": "기초코딩과문제해결(공학계열)", "file": "coding-basics.json" },
   { "id": "writing", "name": "심화글쓰기", "file": "writing.json" },
   { "id": "discrete-math", "name": "이산수학", "file": "discrete-math.json" },
-  { "id": "career-seminar", "name": "진로탐색세미나(첨단산업II)", "file": "career-seminar.json" },
   { "id": "computer-architecture", "name": "컴퓨터구조", "file": "computer-architecture.json" },
   { "id": "programming", "name": "컴퓨터프로그래밍", "file": "programming.json" }
 ]
